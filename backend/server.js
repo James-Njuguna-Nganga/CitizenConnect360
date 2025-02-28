@@ -2,6 +2,7 @@ const app = require('./app');
 const dotenv = require('dotenv');
 const { sequelize } = require('./config/dbConfig');
 const { connectDB } = require('./config/dbConfig');
+require('./models/associations'); // Import associations
 
 dotenv.config();
 
@@ -15,6 +16,6 @@ app.listen(PORT, () => {
 });
 
 // Sync all models
-sequelize.sync({ force: false }).then(() => {
+sequelize.sync({ alter: true }).then(() => {
   console.log('Database & tables created!');
 });

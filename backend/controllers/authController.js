@@ -7,9 +7,9 @@ const { sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/emailServ
 dotenv.config();
 
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body; // Include role in destructuring
   try {
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password, role }); // Include role in user creation
     sendWelcomeEmail(email, name);
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {

@@ -1,17 +1,8 @@
 const User = require('../models/userModel');
 
-exports.getUsers = async (req, res) => {
+exports.getUserProfile = async (req, res) => {
   try {
-    const users = await User.findAll();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.getUserById = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -21,31 +12,34 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-exports.updateUser = async (req, res) => {
-  const { name, email, role } = req.body;
+exports.updateUserProfile = async (req, res) => {
+  const { name, email, password } = req.body;
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    user.name = name;
-    user.email = email;
-    user.role = role;
+    user.name = name || user.name;
+    user.email = email || user.email;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
     await user.save();
-    res.json(user);
+    res.json({ message: 'User profile updated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-exports.deleteUser = async (req, res) => {
+exports.deleteUserProfile = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     await user.destroy();
-    res.json({ message: 'User deleted' });
+    res.json({ message: 'User profile deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

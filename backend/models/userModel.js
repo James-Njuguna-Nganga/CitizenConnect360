@@ -3,6 +3,11 @@ const { sequelize } = require('../config/dbConfig');
 const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -17,8 +22,8 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   role: {
-    type: DataTypes.ENUM('citizen', 'official', 'admin'),
-    defaultValue: 'citizen',
+    type: DataTypes.STRING,
+    allowNull: false,
   },
 }, {
   hooks: {
@@ -27,6 +32,8 @@ const User = sequelize.define('User', {
       user.password = await bcrypt.hash(user.password, salt);
     },
   },
+  timestamps: false, // Disable timestamps if not needed
+  freezeTableName: true, // Prevent Sequelize from pluralizing table names
 });
 
 module.exports = User;

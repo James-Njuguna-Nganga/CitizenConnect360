@@ -3,17 +3,32 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-module.exports = (req, res, next) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
+exports.authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) {
+    console.log('No token provided');
+    return res.sendStatus(401); // Unauthorized
   }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
-    req.userRole = decoded.role;
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      console.log('Token verification failed:', err);
+      return res.sendStatus(403); // Forbidden
+    }
+    console.log('Token verified, user:', user);
+    req.user = user;
     next();
-  } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
-  }
+  });
+};
+
+exports.checkRole = (role) => {
+  return (req, res, next) => {
+    if (req.user.role !== role) {
+      console.log(`Access denied: user role is ${req.user.role}, required role is ${role}`);
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    next();
+  };
 };

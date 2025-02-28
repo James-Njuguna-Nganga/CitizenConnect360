@@ -10,6 +10,10 @@ const Incident = sequelize.define('Incident', {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  location: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   multimedia: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -17,6 +21,10 @@ const Incident = sequelize.define('Incident', {
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'User', // Name of the table in the database
+      key: 'id',
+    },
   },
 });
 
